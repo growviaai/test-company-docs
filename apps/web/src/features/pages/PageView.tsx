@@ -188,6 +188,8 @@ export function PageView() {
         ref={editorRef}
         content={content}
         editable={editable}
+        spaceId={page.space_id}
+        pageId={page.id}
         onUpdate={(json) => {
           setContent(json);
           latestRef.current = { ...latestRef.current, content: json };

@@ -10,8 +10,10 @@ export interface SlashCommandItem {
 
 // The slash menu from 07-docs-editor.md §4: typing "/" on a line opens
 // "Insert block…" with a filter box, grouped into "Basic blocks" and
-// "Advanced blocks". Image/File are intentionally not listed here —
-// see extensions/attachments.ts: there is no upload flow yet to back them.
+// "Advanced blocks". Image/File open the file picker (see
+// buildSlashCommandItems below and Editor.tsx's upload handling) rather
+// than inserting a block directly — the node only gets added once the
+// upload actually completes and a real attachmentId exists.
 export const SLASH_COMMAND_ITEMS: SlashCommandItem[] = [
   {
     title: "Paragraph",
@@ -66,11 +68,36 @@ export const SLASH_COMMAND_ITEMS: SlashCommandItem[] = [
   },
 ];
 
+/** Image/File are built via a factory (not static, unlike the rest of
+ * SLASH_COMMAND_ITEMS) because they need Editor.tsx's file-picker trigger,
+ * which in turn needs the current spaceId/pageId to call the uploads API —
+ * context a static module-level array can't carry. */
+export function buildAttachmentSlashItems(onPickFile: (kind: "image" | "file") => void): SlashCommandItem[] {
+  return [
+    {
+      title: "Image",
+      group: "Advanced blocks",
+      run: (editor, range) => {
+        editor.chain().focus().deleteRange(range).run();
+        onPickFile("image");
+      },
+    },
+    {
+      title: "File",
+      group: "Advanced blocks",
+      run: (editor, range) => {
+        editor.chain().focus().deleteRange(range).run();
+        onPickFile("file");
+      },
+    },
+  ];
+}
+
 /** Pulled out so the filtering logic has a plain, DOM-free unit test
  * (case-insensitive substring match on title). */
-export function filterSlashCommands(query: string): SlashCommandItem[] {
+export function filterSlashCommands(query: string, extraItems: SlashCommandItem[] = []): SlashCommandItem[] {
   const q = query.toLowerCase();
-  return SLASH_COMMAND_ITEMS.filter((item) => item.title.toLowerCase().includes(q));
+  return [...SLASH_COMMAND_ITEMS, ...extraItems].filter((item) => item.title.toLowerCase().includes(q));
 }
 
 export interface SlashMenuRenderProps {
@@ -83,7 +110,8 @@ export interface SlashMenuRenderProps {
  * popup (ReactRenderer + tippy) — this file stays framework-render-agnostic
  * so it has no JSX and can be unit-free-of-DOM in principle. */
 export function createSlashCommandExtension(
-  renderer: Pick<SuggestionOptions<SlashCommandItem>, "render">
+  renderer: Pick<SuggestionOptions<SlashCommandItem>, "render">,
+  extraItems: SlashCommandItem[] = []
 ) {
   return Extension.create({
     name: "slashCommand",
@@ -93,7 +121,7 @@ export function createSlashCommandExtension(
         suggestion: {
           char: "/",
           startOfLine: false,
-          items: ({ query }: { query: string }) => filterSlashCommands(query),
+          items: ({ query }: { query: string }) => filterSlashCommands(query, extraItems),
           command: ({ editor, range, props }: { editor: Editor; range: Range; props: SlashCommandItem }) => {
             props.run(editor, range);
           },
