@@ -277,7 +277,10 @@ adminRoutes.get("/sessions", async (c) => {
   const db = getDb();
   const { data, error } = await db
     .from("sessions")
-    .select("id, ip, user_agent, created_at, last_active_at, expires_at, user:profiles(id, email, full_name)")
+    // sessions has two FKs to profiles (user_id, revoked_by) — PostgREST
+    // can't auto-pick one for an implicit embed ("more than one
+    // relationship was found"), so disambiguate by column name.
+    .select("id, ip, user_agent, created_at, last_active_at, expires_at, user:profiles!sessions_user_id_fkey(id, email, full_name)")
     .is("revoked_at", null)
     .order("last_active_at", { ascending: false });
   if (error) throw Object.assign(new Error(error.message), { status: 500 });
