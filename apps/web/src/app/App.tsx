@@ -14,6 +14,7 @@ import { SearchPage } from "../features/search/SearchPage";
 import { AdminUsersPage } from "../features/admin/AdminUsersPage";
 import { AdminInvitesPage } from "../features/admin/AdminInvitesPage";
 import { AdminSessionsPage } from "../features/admin/AdminSessionsPage";
+import { AdminAuditLogPage } from "../features/admin/AdminAuditLogPage";
 import { SettingsPage } from "../features/settings/SettingsPage";
 
 // Lazy-loaded: TipTap + lowlight + table/list extensions are the single
@@ -52,6 +53,7 @@ export function App() {
                   <Route path="/admin" element={<AdminUsersPage />} />
                   <Route path="/admin/invites" element={<AdminInvitesPage />} />
                   <Route path="/admin/sessions" element={<AdminSessionsPage />} />
+                  <Route path="/admin/audit-log" element={<AdminAuditLogPage />} />
                 </Route>
               </Route>
             </Route>
