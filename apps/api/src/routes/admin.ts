@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { getDb } from "../db/supabase.js";
+import { getDb, getAuthCheckClient } from "../db/supabase.js";
 import { requireAuth } from "../middleware/session.js";
 import { requireAdmin } from "../services/permissions.js";
 import { writeAudit } from "../services/audit.js";
@@ -73,6 +73,63 @@ adminRoutes.post("/users/:id/deactivate", async (c) => {
   await db.from("profiles").update({ status: "deactivated", deactivated_at: new Date().toISOString() }).eq("id", targetId);
   await revokeAllSessionsForUser(targetId, "deactivated", actor.id);
   await writeAudit({ actorId: actor.id, actorEmail: actor.email, action: "user.deactivate", targetType: "profile", targetId });
+  return c.json({ data: { ok: true } });
+});
+
+adminRoutes.post("/users/:id/reactivate", async (c) => {
+  const actor = assertAdmin(c);
+  const targetId = c.req.param("id");
+  const db = getDb();
+  const { data: target } = await db.from("profiles").select("id, status").eq("id", targetId).maybeSingle();
+  if (!target) return c.json({ error: { code: "not_found", message: "User not found" } }, 404);
+  if (target.status !== "deactivated") {
+    return c.json({ error: { code: "conflict", message: "User is not deactivated" } }, 409);
+  }
+  await db.from("profiles").update({ status: "active", deactivated_at: null }).eq("id", targetId);
+  await writeAudit({ actorId: actor.id, actorEmail: actor.email, action: "user.reactivate", targetType: "profile", targetId });
+  return c.json({ data: { ok: true } });
+});
+
+adminRoutes.delete("/users/:id", async (c) => {
+  const actor = assertAdmin(c);
+  const targetId = c.req.param("id");
+  if (targetId === actor.id) {
+    return c.json({ error: { code: "forbidden", message: "Cannot delete your own account" } }, 400);
+  }
+  const db = getDb();
+  const { count } = await db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "admin");
+  const { data: target } = await db.from("profiles").select("id, role, email").eq("id", targetId).maybeSingle();
+  if (!target) return c.json({ error: { code: "not_found", message: "User not found" } }, 404);
+  if (target.role === "admin" && (count ?? 0) <= 1) {
+    return c.json({ error: { code: "forbidden", message: "Cannot delete the last admin" } }, 400);
+  }
+
+  // Deleting the auth.users row cascades to `profiles` (and from there to
+  // sessions, invites sent by them, etc. — see 03-database-schema.md's `on
+  // delete cascade` columns). Tables that record the user as a content
+  // owner without cascade (pages.author_id, spaces.created_by, …) are
+  // intentionally `on delete restrict`-by-default, so Postgres will reject
+  // the delete with a foreign_key_violation if this user has created
+  // content — surface that as a clear, actionable 409 rather than a 500.
+  const authClient = getAuthCheckClient();
+  const { error: deleteError } = await authClient.auth.admin.deleteUser(targetId);
+  if (deleteError) {
+    const isFkViolation = /foreign key|violates/i.test(deleteError.message);
+    if (isFkViolation) {
+      return c.json(
+        {
+          error: {
+            code: "conflict",
+            message: "This user has created spaces, pages, or other content and cannot be deleted. Deactivate them instead, or reassign their content first.",
+          },
+        },
+        409,
+      );
+    }
+    throw Object.assign(new Error(deleteError.message), { status: 500 });
+  }
+
+  await writeAudit({ actorId: actor.id, actorEmail: actor.email, action: "user.delete", targetType: "profile", targetId, metadata: { email: target.email } });
   return c.json({ data: { ok: true } });
 });
 
