@@ -69,3 +69,14 @@ export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1),
   newPassword: z.string().min(1).max(200),
 });
+
+// Per 07-docs-editor.md §5: uploads, 25 MB cap, type allowlist.
+export const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+
+export const signUploadSchema = z.object({
+  spaceId: z.string().uuid(),
+  pageId: z.string().uuid().nullable().optional(),
+  fileName: z.string().min(1).max(255),
+  mimeType: z.string().min(1).max(127),
+  sizeBytes: z.number().int().positive().max(MAX_UPLOAD_BYTES),
+});
