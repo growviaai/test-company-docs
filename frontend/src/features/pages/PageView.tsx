@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { api, ApiError } from "../../lib/api";
 import { Editor, type EditorHandle } from "../editor/Editor";
 import { isEmptyDoc } from "./docUtils";
+import { Skeleton } from "../../components/ui/Skeleton";
 
 interface PageDoc {
   id: string;
@@ -125,7 +126,19 @@ export function PageView() {
     setStatus("idle");
   }
 
-  if (!page) return <p className="text-muted">Loading…</p>;
+  if (!page) {
+    return (
+      <div className="mx-auto max-w-3xl space-y-4 pb-24">
+        <Skeleton className="h-9 w-2/3" />
+        <Skeleton className="h-5 w-1/3" />
+        <div className="space-y-2 pt-4">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-4 w-3/4" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-3xl pb-24">

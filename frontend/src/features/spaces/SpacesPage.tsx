@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import type { Space } from "../../lib/types";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
+import { ListSkeleton } from "../../components/ui/Skeleton";
 
 export function SpacesPage() {
   const { user } = useAuth();
@@ -28,8 +29,6 @@ export function SpacesPage() {
     load();
   }
 
-  if (loading) return <p className="text-muted">Loading spaces…</p>;
-
   return (
     <div>
       <h1 className="mb-4 text-xl font-semibold">Spaces</h1>
@@ -40,6 +39,9 @@ export function SpacesPage() {
           <button className="rounded-md bg-accent px-3 py-1.5 text-sm text-white">Create space</button>
         </form>
       )}
+      {loading ? (
+        <ListSkeleton rows={3} />
+      ) : (
       <ul className="flex flex-col gap-2">
         {spaces.map((s) => (
           <li key={s.id}>
@@ -52,6 +54,7 @@ export function SpacesPage() {
         ))}
         {spaces.length === 0 && <p className="text-muted">No spaces yet.</p>}
       </ul>
+      )}
     </div>
   );
 }

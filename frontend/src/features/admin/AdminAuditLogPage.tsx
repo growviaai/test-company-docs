@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
+import { TableSkeleton } from "../../components/ui/Skeleton";
 
 interface AuditRow {
   id: string;
@@ -18,9 +19,13 @@ export function AdminAuditLogPage() {
   const [rows, setRows] = useState<AuditRow[]>([]);
   const [actionFilter, setActionFilter] = useState("");
   const [actorFilter, setActorFilter] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get<AuditRow[]>("/admin/audit-logs").then(setRows);
+    api.get<AuditRow[]>("/admin/audit-logs").then((data) => {
+      setRows(data);
+      setLoading(false);
+    });
   }, []);
 
   const actions = Array.from(new Set(rows.map((r) => r.action))).sort();
@@ -84,6 +89,9 @@ export function AdminAuditLogPage() {
             <th>Target</th>
           </tr>
         </thead>
+        {loading ? (
+          <TableSkeleton rows={6} cols={4} />
+        ) : (
         <tbody>
           {visible.map((r) => (
             <tr key={r.id} className="border-b border-border/60">
@@ -105,6 +113,7 @@ export function AdminAuditLogPage() {
             </tr>
           )}
         </tbody>
+        )}
       </table>
     </div>
   );

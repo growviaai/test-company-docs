@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { api, ApiError } from "../../lib/api";
+import { TableSkeleton } from "../../components/ui/Skeleton";
 
 interface InviteRow {
   id: string;
@@ -29,11 +30,19 @@ export function AdminInvitesPage() {
   const [error, setError] = useState<string | null>(null);
   const [lastLink, setLastLink] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   function load() {
-    api.get<InviteRow[]>(`/admin/invites?status=${filter}`).then(setInvites);
+    api.get<InviteRow[]>(`/admin/invites?status=${filter}`).then((data) => {
+      setInvites(data);
+      setLoading(false);
+    });
   }
-  useEffect(load, [filter]);
+  useEffect(() => {
+    setLoading(true);
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load() closes over filter, re-run only when filter changes
+  }, [filter]);
 
   async function createInvite(e: FormEvent) {
     e.preventDefault();
@@ -145,6 +154,9 @@ export function AdminInvitesPage() {
             <th />
           </tr>
         </thead>
+        {loading ? (
+          <TableSkeleton rows={5} cols={5} />
+        ) : (
         <tbody>
           {invites.map((i) => (
             <tr key={i.id} className="border-b border-border/60">
@@ -174,6 +186,7 @@ export function AdminInvitesPage() {
             </tr>
           )}
         </tbody>
+        )}
       </table>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
+import { TableSkeleton } from "../../components/ui/Skeleton";
 
 interface UserRow {
   id: string;
@@ -11,9 +12,13 @@ interface UserRow {
 
 export function AdminUsersPage() {
   const [users, setUsers] = useState<UserRow[]>([]);
+  const [loading, setLoading] = useState(true);
 
   function load() {
-    api.get<UserRow[]>("/admin/users").then(setUsers);
+    api.get<UserRow[]>("/admin/users").then((data) => {
+      setUsers(data);
+      setLoading(false);
+    });
   }
   useEffect(load, []);
 
@@ -60,7 +65,17 @@ export function AdminUsersPage() {
             <th />
           </tr>
         </thead>
+        {loading ? (
+          <TableSkeleton rows={5} cols={5} />
+        ) : (
         <tbody>
+          {users.length === 0 && (
+            <tr>
+              <td colSpan={5} className="py-6 text-center text-muted">
+                No users yet
+              </td>
+            </tr>
+          )}
           {users.map((u) => (
             <tr key={u.id} className="border-b border-border/60">
               <td className="py-2">{u.full_name}</td>
@@ -95,6 +110,7 @@ export function AdminUsersPage() {
             </tr>
           ))}
         </tbody>
+        )}
       </table>
     </div>
   );

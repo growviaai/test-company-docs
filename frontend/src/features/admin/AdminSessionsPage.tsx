@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
+import { TableSkeleton } from "../../components/ui/Skeleton";
 
 interface SessionRow {
   id: string;
@@ -26,9 +27,13 @@ function relativeTime(iso: string): string {
 export function AdminSessionsPage() {
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [filterUser, setFilterUser] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   function load() {
-    api.get<SessionRow[]>("/admin/sessions").then(setSessions);
+    api.get<SessionRow[]>("/admin/sessions").then((data) => {
+      setSessions(data);
+      setLoading(false);
+    });
   }
   useEffect(() => {
     load();
@@ -69,6 +74,9 @@ export function AdminSessionsPage() {
             <th />
           </tr>
         </thead>
+        {loading ? (
+          <TableSkeleton rows={5} cols={6} />
+        ) : (
         <tbody>
           {visible.map((s) => (
             <tr key={s.id} className="border-b border-border/60">
@@ -108,6 +116,7 @@ export function AdminSessionsPage() {
             </tr>
           )}
         </tbody>
+        )}
       </table>
     </div>
   );
