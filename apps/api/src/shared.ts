@@ -1,0 +1,38 @@
+import { z } from "zod";
+
+// Mirrors packages/shared/src/index.ts. Duplicated (rather than imported as a
+// pnpm workspace dependency) so apps/api can be deployed to Vercel as a
+// standalone package with no monorepo workspace resolution required.
+
+export type UserRole = "admin" | "member";
+
+export const signInSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
+
+export const createSpaceSchema = z.object({
+  name: z.string().min(1).max(80),
+  slug: z
+    .string()
+    .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/)
+    .min(1)
+    .max(80),
+  description: z.string().max(300).optional().nullable(),
+  emoji: z.string().max(8).optional().nullable(),
+  visibility: z.enum(["all", "restricted"]).default("all"),
+});
+
+export const createPageSchema = z.object({
+  space_id: z.string().uuid(),
+  parent_id: z.string().uuid().nullable().optional(),
+  kind: z.enum(["page", "group"]).default("page"),
+  title: z.string().min(1).max(200).default("Untitled"),
+});
+
+export const updatePageContentSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  description: z.string().max(300).nullable().optional(),
+  content: z.unknown(),
+  revision: z.number().int().positive(),
+});
