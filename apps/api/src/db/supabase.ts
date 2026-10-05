@@ -16,8 +16,11 @@ let client: SupabaseClient<Database> | undefined;
  * role) instead of the service role, even though it was constructed with the
  * service role key. Because this client is cached (singleton, for warm
  * Lambda reuse), that downgrade would silently persist across unrelated
- * requests on the same warm instance. Use `getAuthCheckClient()` below for
- * password verification instead — a fresh, never-cached, never-reused
+ * requests on the same warm instance. The same risk applies to any other
+ * `.auth.*` call that touches session state, including the Admin API
+ * (`auth.admin.createUser`, `updateUserById`, …) used by the invite-accept
+ * and password-reset flows — use `getAuthCheckClient()` below for every
+ * one-off `.auth.*` call instead: a fresh, never-cached, never-reused
  * client whose auth-state mutation cannot leak anywhere else. */
 export function getDb(): SupabaseClient<Database> {
   if (client) return client;
@@ -28,11 +31,14 @@ export function getDb(): SupabaseClient<Database> {
   return client;
 }
 
-/** A throwaway Supabase client for verifying a password via
- * `auth.signInWithPassword`, deliberately NOT the cached `getDb()` client
- * (see the warning on `getDb` above). A fresh instance is created on every
- * call and discarded immediately after use, so its auth-state mutation can
- * never bleed into `getDb()`'s PostgREST calls or into any other request. */
+/** A throwaway Supabase client for any one-off call under `.auth.*` —
+ * `signInWithPassword` for sign-in, or an Admin API call
+ * (`auth.admin.createUser`/`updateUserById`/`deleteUser`) for invite
+ * acceptance and password reset — deliberately NOT the cached `getDb()`
+ * client (see the warning on `getDb` above). A fresh instance is created
+ * on every call and discarded immediately after use, so its auth-state
+ * mutation can never bleed into `getDb()`'s PostgREST calls or into any
+ * other request. */
 export function getAuthCheckClient(): SupabaseClient<Database> {
   const env = getEnv();
   return createClient<Database>(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {

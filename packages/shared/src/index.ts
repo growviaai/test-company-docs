@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export * from "./content-schema.js";
+export * from "./password-policy.js";
 
 export type UserRole = "admin" | "member";
 export type UserStatus = "active" | "deactivated";
@@ -89,6 +90,36 @@ export const updatePageContentSchema = z.object({
   description: z.string().max(300).nullable().optional(),
   content: z.unknown(),
   revision: z.number().int().positive(),
+});
+
+// Per 04-auth-and-sessions.md §5-7.
+export const INVITE_EXPIRY_OPTIONS = ["24h", "72h", "7d"] as const;
+export type InviteExpiryOption = (typeof INVITE_EXPIRY_OPTIONS)[number];
+
+export const createInviteSchema = z.object({
+  email: z.string().email(),
+  role: z.enum(["admin", "member"]).default("member"),
+  expiresIn: z.enum(INVITE_EXPIRY_OPTIONS).default("72h"),
+  spaceIds: z.array(z.string().uuid()).max(100).optional(),
+});
+
+export const acceptInviteSchema = z.object({
+  fullName: z.string().min(1).max(120),
+  password: z.string().min(1).max(200),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email(),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1),
+  password: z.string().min(1).max(200),
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(1).max(200),
 });
 
 export const ERROR_CODES = {
