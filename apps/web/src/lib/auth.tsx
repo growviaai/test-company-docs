@@ -46,7 +46,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }
 
-  return <AuthContext.Provider value={{ user, loading, signIn, signOut }}>{children}</AuthContext.Provider>;
+  async function refreshUser() {
+    const me = await api.get<Me>("/me").catch(() => null);
+    setUser(me);
+  }
+
+  return <AuthContext.Provider value={{ user, loading, signIn, signOut, refreshUser }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth(): AuthState {

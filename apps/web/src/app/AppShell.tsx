@@ -22,9 +22,14 @@ export function AppShell() {
             Search
           </NavLink>
           {user?.role === "admin" && (
-            <NavLink to="/admin" className={({ isActive }) => `rounded-md px-2 py-1.5 ${isActive ? "bg-accent/10 text-accent" : "hover:bg-border/40"}`}>
-              Admin
-            </NavLink>
+            <>
+              <NavLink to="/admin" end className={({ isActive }) => `rounded-md px-2 py-1.5 ${isActive ? "bg-accent/10 text-accent" : "hover:bg-border/40"}`}>
+                Users
+              </NavLink>
+              <NavLink to="/admin/invites" className={({ isActive }) => `rounded-md px-2 py-1.5 ${isActive ? "bg-accent/10 text-accent" : "hover:bg-border/40"}`}>
+                Invites
+              </NavLink>
+            </>
           )}
         </nav>
       </aside>

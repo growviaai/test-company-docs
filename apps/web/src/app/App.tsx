@@ -5,10 +5,14 @@ import { AuthProvider } from "../lib/auth";
 import { AppShell } from "./AppShell";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { SignInPage } from "../features/auth/SignInPage";
+import { ForgotPasswordPage } from "../features/auth/ForgotPasswordPage";
+import { ResetPasswordPage } from "../features/auth/ResetPasswordPage";
+import { AcceptInvitePage } from "../features/auth/AcceptInvitePage";
 import { SpacesPage } from "../features/spaces/SpacesPage";
 import { SpaceView } from "../features/spaces/SpaceView";
 import { SearchPage } from "../features/search/SearchPage";
 import { AdminUsersPage } from "../features/admin/AdminUsersPage";
+import { AdminInvitesPage } from "../features/admin/AdminInvitesPage";
 
 // Lazy-loaded: TipTap + lowlight + table/list extensions are the single
 // largest chunk of the bundle, and most visits (browsing the tree, search,
@@ -25,6 +29,9 @@ export function App() {
         <BrowserRouter basename={import.meta.env.VITE_BASE_PATH ?? "/"}>
           <Routes>
             <Route path="/sign-in" element={<SignInPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+            <Route path="/invite/:token" element={<AcceptInvitePage />} />
             <Route element={<ProtectedRoute />}>
               <Route element={<AppShell />}>
                 <Route path="/" element={<SpacesPage />} />
@@ -40,6 +47,7 @@ export function App() {
                 <Route path="/search" element={<SearchPage />} />
                 <Route element={<ProtectedRoute adminOnly />}>
                   <Route path="/admin" element={<AdminUsersPage />} />
+                  <Route path="/admin/invites" element={<AdminInvitesPage />} />
                 </Route>
               </Route>
             </Route>

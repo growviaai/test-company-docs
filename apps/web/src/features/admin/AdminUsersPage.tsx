@@ -27,6 +27,10 @@ export function AdminUsersPage() {
     load();
   }
 
+  async function sendReset(id: string) {
+    await api.post(`/admin/users/${id}/send-reset`);
+  }
+
   return (
     <div>
       <h1 className="mb-4 text-xl font-semibold">Users</h1>
@@ -55,9 +59,14 @@ export function AdminUsersPage() {
                   {u.role === "admin" ? "Make member" : "Make admin"}
                 </button>
                 {u.status === "active" && (
-                  <button onClick={() => deactivate(u.id)} className="rounded-md border border-border px-2 py-1 text-xs hover:bg-border/40">
-                    Deactivate
-                  </button>
+                  <>
+                    <button onClick={() => sendReset(u.id)} className="rounded-md border border-border px-2 py-1 text-xs hover:bg-border/40">
+                      Send reset link
+                    </button>
+                    <button onClick={() => deactivate(u.id)} className="rounded-md border border-border px-2 py-1 text-xs hover:bg-border/40">
+                      Deactivate
+                    </button>
+                  </>
                 )}
               </td>
             </tr>
