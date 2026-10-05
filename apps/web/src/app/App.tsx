@@ -13,6 +13,7 @@ import { SpaceView } from "../features/spaces/SpaceView";
 import { SearchPage } from "../features/search/SearchPage";
 import { AdminUsersPage } from "../features/admin/AdminUsersPage";
 import { AdminInvitesPage } from "../features/admin/AdminInvitesPage";
+import { SettingsPage } from "../features/settings/SettingsPage";
 
 // Lazy-loaded: TipTap + lowlight + table/list extensions are the single
 // largest chunk of the bundle, and most visits (browsing the tree, search,
@@ -45,6 +46,7 @@ export function App() {
                   }
                 />
                 <Route path="/search" element={<SearchPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
                 <Route element={<ProtectedRoute adminOnly />}>
                   <Route path="/admin" element={<AdminUsersPage />} />
                   <Route path="/admin/invites" element={<AdminInvitesPage />} />

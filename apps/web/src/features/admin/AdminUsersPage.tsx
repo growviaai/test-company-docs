@@ -27,6 +27,22 @@ export function AdminUsersPage() {
     load();
   }
 
+  async function reactivate(id: string) {
+    await api.post(`/admin/users/${id}/reactivate`);
+    load();
+  }
+
+  async function remove(user: UserRow) {
+    const typed = window.prompt(`Type ${user.email} to permanently delete this user. This cannot be undone.`);
+    if (typed !== user.email) return;
+    try {
+      await api.delete(`/admin/users/${user.id}`);
+      load();
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : "Could not delete this user.");
+    }
+  }
+
   async function sendReset(id: string) {
     await api.post(`/admin/users/${id}/send-reset`);
   }
@@ -58,7 +74,7 @@ export function AdminUsersPage() {
                 >
                   {u.role === "admin" ? "Make member" : "Make admin"}
                 </button>
-                {u.status === "active" && (
+                {u.status === "active" ? (
                   <>
                     <button onClick={() => sendReset(u.id)} className="rounded-md border border-border px-2 py-1 text-xs hover:bg-border/40">
                       Send reset link
@@ -67,7 +83,14 @@ export function AdminUsersPage() {
                       Deactivate
                     </button>
                   </>
+                ) : (
+                  <button onClick={() => reactivate(u.id)} className="rounded-md border border-border px-2 py-1 text-xs hover:bg-border/40">
+                    Reactivate
+                  </button>
                 )}
+                <button onClick={() => remove(u)} className="rounded-md border border-red-500/40 px-2 py-1 text-xs text-red-500 hover:bg-red-500/10">
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
