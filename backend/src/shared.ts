@@ -4,7 +4,7 @@ export * from "./content-schema.js";
 export * from "./password-policy.js";
 
 // Mirrors packages/shared/src/index.ts. Duplicated (rather than imported as a
-// pnpm workspace dependency) so apps/api can be deployed to Vercel as a
+// pnpm workspace dependency) so backend can be deployed to Vercel as a
 // standalone package with no monorepo workspace resolution required.
 
 export type UserRole = "admin" | "member";

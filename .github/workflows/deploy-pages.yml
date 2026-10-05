@@ -43,7 +43,7 @@ jobs:
           enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/web/dist
+          path: frontend/dist
 
   deploy:
     needs: build

@@ -6,9 +6,9 @@ import { z } from "zod";
 // schema (allowed node and mark types only). Reject unknown nodes.") so a
 // request can never smuggle in arbitrary node types, HTML, or scripts.
 //
-// This file is mirrored byte-for-byte at apps/api/src/content-schema.ts
-// (apps/api duplicates packages/shared rather than depending on it, so it
-// can deploy to Vercel standalone — see apps/api/src/shared.ts). Keep both
+// This file is mirrored byte-for-byte at backend/src/content-schema.ts
+// (backend duplicates packages/shared rather than depending on it, so it
+// can deploy to Vercel standalone — see backend/src/shared.ts). Keep both
 // copies identical when editing either one.
 
 export const HINT_VARIANTS = ["info", "success", "warning", "danger"] as const;
@@ -254,7 +254,7 @@ export function validatePageContent(raw: unknown): ContentValidationResult {
   let size: number;
   try {
     // TextEncoder (not Buffer) so this file stays portable to the browser
-    // bundle (apps/web imports @tcd/shared too) as well as the API's Node runtime.
+    // bundle (frontend imports @tcd/shared too) as well as the API's Node runtime.
     size = new TextEncoder().encode(JSON.stringify(raw ?? null)).length;
   } catch {
     return { ok: false, error: "Content is not valid JSON" };

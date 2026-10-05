@@ -1,5 +1,5 @@
 // Password rules per 04-auth-and-sessions.md §9. Mirrored byte-for-byte at
-// apps/api/src/password-policy.ts (same duplication convention as
+// backend/src/password-policy.ts (same duplication convention as
 // content-schema.ts — see the note there).
 
 export const MIN_PASSWORD_LENGTH = 12;
