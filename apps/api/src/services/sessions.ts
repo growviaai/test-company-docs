@@ -39,7 +39,20 @@ export async function createSession(opts: {
     .select("id, csrf_token")
     .single();
 
-  if (error || !data) throw new Error("Failed to create session");
+  if (error || !data) {
+    // Temporary diagnostic logging for a production incident: session
+    // creation is failing after a successful password check. Never logs
+    // the token or any user-identifying data, only the Postgres/PostgREST
+    // error shape, to find the root cause without violating RULES.md §2.10.
+    // eslint-disable-next-line no-console
+    console.error("[sessions] insert failed", {
+      message: error?.message,
+      code: error?.code,
+      details: error?.details,
+      hint: error?.hint,
+    });
+    throw new Error("Failed to create session");
+  }
   return { rawToken, csrfToken: data.csrf_token as string, sessionId: data.id as string };
 }
 
