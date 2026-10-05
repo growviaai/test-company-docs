@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { getDb } from "../db/supabase.js";
+import { getDb, getAuthCheckClient } from "../db/supabase.js";
 import { createSession, revokeSession } from "../services/sessions.js";
 import { sessionCookieAttrs, clearedSessionCookieAttrs } from "../middleware/cookies.js";
 import { tooManyFailedAttempts, recordLoginAttempt } from "../middleware/rateLimit.js";
@@ -33,9 +33,18 @@ authRoutes.post("/sign-in", async (c) => {
     return c.json({ error: { code: "account_locked", message: "Account temporarily locked." } }, 423);
   }
 
-  // Verify the password against Supabase Auth using the service role key
-  // (per 02-architecture.md: "Supabase Auth for password checks" from the API only).
-  const { data: signInData, error: signInError } = await db.auth.signInWithPassword({ email, password });
+  // Verify the password against Supabase Auth. Deliberately uses a
+  // dedicated, never-cached client (see the warning on db/supabase.ts's
+  // getDb()) rather than the shared `db` instance above: calling
+  // signInWithPassword on a client silently swaps its Authorization header
+  // from the service role to the signed-in user for every later request on
+  // that same instance, which would have downgraded the shared singleton
+  // for the rest of this warm Lambda.
+  const authClient = getAuthCheckClient();
+  const { data: signInData, error: signInError } = await authClient.auth.signInWithPassword({
+    email,
+    password,
+  });
   const ok = !signInError && !!signInData?.user;
 
   await recordLoginAttempt(email, ip, ok);
