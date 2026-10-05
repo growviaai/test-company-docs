@@ -10,6 +10,7 @@ import { adminRoutes } from "./routes/admin.js";
 import { spaceRoutes } from "./routes/spaces.js";
 import { pageRoutes } from "./routes/pages.js";
 import { searchRoutes } from "./routes/search.js";
+import { inviteRoutes } from "./routes/invites.js";
 
 export function buildApp() {
   const app = new Hono();
@@ -29,6 +30,7 @@ export function buildApp() {
   app.route("/spaces", spaceRoutes);
   app.route("/pages", pageRoutes);
   app.route("/search", searchRoutes);
+  app.route("/invites", inviteRoutes);
 
   return app;
 }

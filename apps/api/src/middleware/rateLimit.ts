@@ -31,3 +31,20 @@ export async function recordLoginAttempt(email: string, ip: string | null, succe
   const db = getDb();
   await db.from("login_attempts").insert({ email, ip, success });
 }
+
+/** Per 10-api-spec.md: "forgot-password 5 / hour" (per IP). Backed by
+ * audit_logs (append-only, already written on every forgot-password call)
+ * rather than a new table, per 02-architecture.md's "rate limiting backed
+ * by Postgres" — no separate counter to keep in sync. */
+export async function tooManyForgotPasswordAttempts(ip: string | null): Promise<boolean> {
+  if (!ip) return false;
+  const db = getDb();
+  const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const { count } = await db
+    .from("audit_logs")
+    .select("id", { count: "exact", head: true })
+    .eq("action", "auth.password_reset_requested")
+    .eq("ip", ip)
+    .gte("created_at", since);
+  return (count ?? 0) >= 5;
+}

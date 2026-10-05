@@ -12,6 +12,9 @@ interface AuthState {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  /** Re-fetches /me — used after a flow that sets the session cookie
+   * without going through signIn() (e.g. accepting an invite). */
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
