@@ -5,11 +5,11 @@ import { getEnv } from "../config/env.js";
  *
  * Deviation from 04-auth-and-sessions.md: the spec's default is
  * `SameSite=Lax` because frontend and API share one registrable domain.
- * Here the frontend is on Cloudflare Pages (*.pages.dev) and the API is on
+ * Here the frontend is on Cloudflare Workers (*.workers.dev) and the API is on
  * Vercel (*.vercel.app) — different base domains — so a Lax or Strict
  * cookie would never be sent on cross-origin fetches. We use
  * `SameSite=None; Secure` instead, which requires HTTPS (satisfied by
- * both Cloudflare Pages and Vercel) and explicit CORS allow-listing of the
+ * both Cloudflare Workers and Vercel) and explicit CORS allow-listing of the
  * exact frontend origin (see middleware/security.ts).
  */
 export function sessionCookieAttrs(maxAgeSeconds: number): string {

@@ -10,7 +10,7 @@ const schema = z.object({
   // Base URL the frontend is actually served from — used only to build
   // invite/reset links in emails. Distinct from CORS_ORIGIN, which must
   // stay an exact origin for the CORS check in middleware/security.ts.
-  FRONTEND_URL: z.string().url().default("https://test-company-docs.pages.dev"),
+  FRONTEND_URL: z.string().url().default("https://test-company-docs.twobot2026.workers.dev"),
   NODE_ENV: z.string().default("production"),
 });
 
