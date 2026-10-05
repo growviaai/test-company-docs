@@ -1,0 +1,8 @@
+{
+  "name": "test-company-docs",
+  "compatibility_date": "2025-06-05",
+  // Static-assets-only Worker (no server-side Worker code) — this just
+  // serves the Vite build output from frontend/dist. The actual API lives
+  // on Vercel (backend/), not here. See docs/13-deployment-git.md.
+  "assets": { "directory": "./frontend/dist" },
+}

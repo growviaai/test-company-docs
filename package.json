@@ -14,9 +14,12 @@
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test"
   },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  },
   "pnpm": {
     "overrides": {
-      "esbuild": "0.21.5"
+      "vite@5>esbuild": "0.21.5"
     }
   }
 }
