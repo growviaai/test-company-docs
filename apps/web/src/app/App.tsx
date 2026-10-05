@@ -13,6 +13,7 @@ import { SpaceView } from "../features/spaces/SpaceView";
 import { SearchPage } from "../features/search/SearchPage";
 import { AdminUsersPage } from "../features/admin/AdminUsersPage";
 import { AdminInvitesPage } from "../features/admin/AdminInvitesPage";
+import { AdminSessionsPage } from "../features/admin/AdminSessionsPage";
 import { SettingsPage } from "../features/settings/SettingsPage";
 
 // Lazy-loaded: TipTap + lowlight + table/list extensions are the single
@@ -50,6 +51,7 @@ export function App() {
                 <Route element={<ProtectedRoute adminOnly />}>
                   <Route path="/admin" element={<AdminUsersPage />} />
                   <Route path="/admin/invites" element={<AdminInvitesPage />} />
+                  <Route path="/admin/sessions" element={<AdminSessionsPage />} />
                 </Route>
               </Route>
             </Route>

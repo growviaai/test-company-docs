@@ -32,6 +32,9 @@ export function AppShell() {
               <NavLink to="/admin/invites" className={({ isActive }) => `rounded-md px-2 py-1.5 ${isActive ? "bg-accent/10 text-accent" : "hover:bg-border/40"}`}>
                 Invites
               </NavLink>
+              <NavLink to="/admin/sessions" className={({ isActive }) => `rounded-md px-2 py-1.5 ${isActive ? "bg-accent/10 text-accent" : "hover:bg-border/40"}`}>
+                Sessions
+              </NavLink>
             </>
           )}
         </nav>

@@ -270,7 +270,19 @@ adminRoutes.delete("/invites/:id", async (c) => {
   return c.json({ data: { ok: true } });
 });
 
-// --- Admin session termination (04-auth-and-sessions.md §8) ---
+// --- Admin sessions (06-admin-panel.md §4, 04-auth-and-sessions.md §8) ---
+
+adminRoutes.get("/sessions", async (c) => {
+  assertAdmin(c);
+  const db = getDb();
+  const { data, error } = await db
+    .from("sessions")
+    .select("id, ip, user_agent, created_at, last_active_at, expires_at, user:profiles(id, email, full_name)")
+    .is("revoked_at", null)
+    .order("last_active_at", { ascending: false });
+  if (error) throw Object.assign(new Error(error.message), { status: 500 });
+  return c.json({ data });
+});
 
 adminRoutes.delete("/sessions/:id", async (c) => {
   const actor = assertAdmin(c);
