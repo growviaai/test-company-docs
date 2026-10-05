@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import type { Space } from "@tcd/shared";
+import type { Space } from "../../lib/types";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
 

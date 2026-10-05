@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.56.2",
-    "@tcd/shared": "workspace:*",
     "@tiptap/core": "^2.9.1",
     "@tiptap/extension-code-block-lowlight": "^2.9.1",
     "@tiptap/extension-link": "^2.9.1",

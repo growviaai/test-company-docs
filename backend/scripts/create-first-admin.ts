@@ -5,7 +5,7 @@
  * admin already exists (per 03-database-schema.md section 8).
  *
  * Usage: SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... \
- *        node --loader tsx scripts/create-first-admin.ts <email> <full name> <password>
+ *        node --loader tsx backend/scripts/create-first-admin.ts <email> <full name> <password>
  */
 import { createClient } from "@supabase/supabase-js";
 
