@@ -34,6 +34,13 @@ jobs:
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://test-company-docs.vercel.app' }}
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
       - uses: actions/configure-pages@v5
+        with:
+          # The repo has never had Pages turned on in Settings → Pages, and
+          # this proxy/sandbox has no path to do that by hand (the GitHub
+          # REST Pages endpoints are not reachable through it). Let the
+          # workflow's own pages:write token create the Pages site itself
+          # on first run instead of failing with "Get Pages site failed".
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: apps/web/dist

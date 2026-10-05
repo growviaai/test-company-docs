@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export * from "./content-schema.js";
+
 export type UserRole = "admin" | "member";
 export type UserStatus = "active" | "deactivated";
 export type SpaceVisibility = "all" | "restricted";

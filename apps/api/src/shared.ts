@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export * from "./content-schema.js";
+
 // Mirrors packages/shared/src/index.ts. Duplicated (rather than imported as a
 // pnpm workspace dependency) so apps/api can be deployed to Vercel as a
 // standalone package with no monorepo workspace resolution required.

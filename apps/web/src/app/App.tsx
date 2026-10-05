@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "../lib/auth";
@@ -6,9 +7,14 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { SignInPage } from "../features/auth/SignInPage";
 import { SpacesPage } from "../features/spaces/SpacesPage";
 import { SpaceView } from "../features/spaces/SpaceView";
-import { PageView } from "../features/pages/PageView";
 import { SearchPage } from "../features/search/SearchPage";
 import { AdminUsersPage } from "../features/admin/AdminUsersPage";
+
+// Lazy-loaded: TipTap + lowlight + table/list extensions are the single
+// largest chunk of the bundle, and most visits (browsing the tree, search,
+// admin) never open a page in edit view. Phase 12's performance checklist
+// in docs/14-build-plan.md calls this out by name ("lazy-load the editor").
+const PageView = lazy(() => import("../features/pages/PageView").then((m) => ({ default: m.PageView })));
 
 const queryClient = new QueryClient();
 
@@ -23,7 +29,14 @@ export function App() {
               <Route element={<AppShell />}>
                 <Route path="/" element={<SpacesPage />} />
                 <Route path="/spaces/:spaceId" element={<SpaceView />} />
-                <Route path="/pages/:pageId" element={<PageView />} />
+                <Route
+                  path="/pages/:pageId"
+                  element={
+                    <Suspense fallback={<p className="text-muted">Loading…</p>}>
+                      <PageView />
+                    </Suspense>
+                  }
+                />
                 <Route path="/search" element={<SearchPage />} />
                 <Route element={<ProtectedRoute adminOnly />}>
                   <Route path="/admin" element={<AdminUsersPage />} />

@@ -1,0 +1,171 @@
+/* ProseMirror content styling for the TipTap editor and the read-only
+ * reader view (both render the same `.tiptap` tree). Uses the design
+ * tokens from styles/tokens.css so light/dark both work (RULES.md:
+ * "Use tokens, never hardcoded hex values in components"). Hint variant
+ * colors come from 11-design-system.md / design/colors.md's semantic
+ * scales; since the full 12-step token scale isn't wired into
+ * tailwind.config.js yet, they're expressed here as CSS vars per variant
+ * (same approach already used for the one-off amber conflict banner in
+ * the previous PageView.tsx). */
+
+.tiptap {
+  outline: none;
+  min-height: 200px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
+.tiptap > * + * {
+  margin-top: 0.75em;
+}
+
+.tiptap p.is-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--color-muted);
+  pointer-events: none;
+}
+
+.tiptap h1,
+.tiptap h2,
+.tiptap h3 {
+  font-weight: 700;
+  line-height: 1.3;
+  scroll-margin-top: 80px;
+}
+.tiptap h1 { font-size: 1.6em; }
+.tiptap h2 { font-size: 1.35em; }
+.tiptap h3 { font-size: 1.15em; }
+
+.tiptap ul,
+.tiptap ol {
+  padding-left: 1.5em;
+}
+.tiptap ul { list-style: disc; }
+.tiptap ol { list-style: decimal; }
+
+.tiptap ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+.tiptap ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5em;
+}
+.tiptap ul[data-type="taskList"] li > label {
+  margin-top: 0.3em;
+}
+.tiptap ul[data-type="taskList"] li[data-checked="true"] > div > p {
+  color: var(--color-muted);
+  text-decoration: line-through;
+}
+
+.tiptap code {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  font-size: 0.9em;
+}
+
+.tiptap pre {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.75em 1em;
+  overflow-x: auto;
+}
+.tiptap pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.85em;
+}
+
+.tiptap a {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.tiptap table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+.tiptap th,
+.tiptap td {
+  border: 1px solid var(--color-border);
+  padding: 0.4em 0.6em;
+  vertical-align: top;
+  position: relative;
+}
+.tiptap th {
+  background: var(--color-bg);
+  font-weight: 600;
+  text-align: left;
+}
+
+.tiptap div[data-hint] {
+  border-radius: 4px;
+  border-left: 3px solid;
+  padding: 0.6em 0.9em;
+}
+.tiptap div[data-hint][data-variant="info"] {
+  background: #eaf3ff;
+  border-color: #0b3261;
+}
+.tiptap div[data-hint][data-variant="success"] {
+  background: #e1f8ec;
+  border-color: #0e7f5a;
+}
+.tiptap div[data-hint][data-variant="warning"] {
+  background: #ffeecf;
+  border-color: #92632a;
+}
+.tiptap div[data-hint][data-variant="danger"] {
+  background: #ffeae6;
+  border-color: #bb3d31;
+}
+:root[data-theme="dark"] .tiptap div[data-hint][data-variant="info"] {
+  background: #122947;
+  border-color: #1f4c83;
+}
+:root[data-theme="dark"] .tiptap div[data-hint][data-variant="success"] {
+  background: #113023;
+  border-color: #116a4c;
+}
+:root[data-theme="dark"] .tiptap div[data-hint][data-variant="warning"] {
+  background: #332311;
+  border-color: #734e21;
+}
+:root[data-theme="dark"] .tiptap div[data-hint][data-variant="danger"] {
+  background: #411510;
+  border-color: #912e25;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .tiptap div[data-hint][data-variant="info"] {
+    background: #122947;
+    border-color: #1f4c83;
+  }
+  :root:not([data-theme="light"]) .tiptap div[data-hint][data-variant="success"] {
+    background: #113023;
+    border-color: #116a4c;
+  }
+  :root:not([data-theme="light"]) .tiptap div[data-hint][data-variant="warning"] {
+    background: #332311;
+    border-color: #734e21;
+  }
+  :root:not([data-theme="light"]) .tiptap div[data-hint][data-variant="danger"] {
+    background: #411510;
+    border-color: #912e25;
+  }
+}
+
+.tiptap .ProseMirror-selectednode {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

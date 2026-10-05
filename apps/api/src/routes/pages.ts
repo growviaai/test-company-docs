@@ -3,6 +3,7 @@ import { getDb } from "../db/supabase.js";
 import { requireAuth } from "../middleware/session.js";
 import { canAccessSpace } from "../services/permissions.js";
 import { createPageSchema, updatePageContentSchema } from "../shared.js";
+import { validatePageContent } from "../content-schema.js";
 import { writeAudit } from "../services/audit.js";
 
 export const pageRoutes = new Hono();
@@ -123,13 +124,21 @@ pageRoutes.patch("/:id", async (c) => {
     return c.json({ error: { code: "revision_conflict", message: "Page was changed elsewhere. Reload and retry." } }, 409);
   }
 
-  const contentText = extractText(parsed.data.content).trim().slice(0, 100000);
+  // Per 07-docs-editor.md §4 and RULES.md §2.8: validate content against an
+  // allowlisted node/mark schema and a 1 MB size cap before it ever reaches
+  // the database. Never trust the shape of client-sent TipTap JSON.
+  const contentCheck = validatePageContent(parsed.data.content);
+  if (!contentCheck.ok) {
+    return c.json({ error: { code: "validation_error", message: contentCheck.error } }, 400);
+  }
+
+  const contentText = extractText(contentCheck.content).trim().slice(0, 100000);
   const { data, error } = await db
     .from("pages")
     .update({
       title: parsed.data.title,
       description: parsed.data.description,
-      content: parsed.data.content,
+      content: contentCheck.content,
       content_text: contentText,
       revision: existing.revision + 1,
       updated_by: user.id,
